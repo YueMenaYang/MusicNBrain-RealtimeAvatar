@@ -75,7 +75,11 @@ We use a 4-stage State Machine to handle natural back-and-forth conversation.
 ### State 1: Passive Listening (Background)
 
 * **Status:** Avatar is Idle (Listening Loop).
-* **Action:** DSP analyzes music. ASR listens *only* for "Wake Words" (e.g., *"Teacher, comment"*).
+* **Action:**
+* DSP analyzes music and **appends to Full Session History (ACC)**.
+* ASR listens *only* for "Wake Words" (e.g., *"Teacher, comment"*).
+
+
 * **Transition:** Wake Word Detected  Go to State 3 (Responding).
 
 ### State 2: Active Listening (Follow-Up Window)
@@ -87,12 +91,14 @@ We use a 4-stage State Machine to handle natural back-and-forth conversation.
 * **Logic:**
 * If User speaks: Treat as "Follow-up Question"  Go to State 3.
 * If User plays music: Cancel timer  Go to State 1.
-* If Timer expires: Clear context  Go to State 1.
+* If Timer expires: **End Conversation Turn** (Keep Music Stats, clear Chat Buffer)  Go to State 1.
+
+
 
 ### State 3: Responding (Thinking)
 
 * **Action:**
-1. Fetch Music Stats (if first turn).
+1. **Generate Performance Summary** (Math calculation on full ACC history).
 2. Fetch Conversation History (if follow-up).
 3. LLM generates response.
 4. Update History.
@@ -103,8 +109,12 @@ We use a 4-stage State Machine to handle natural back-and-forth conversation.
 ### State 4: Speaking (Rendering)
 
 * **Action:** LivePortrait renders video; TTS plays audio.
-* **Transition:** Speaking Finished  Go to State 2 (Active Listening).
+* **Interruption Logic (Barge-In):**
+* If ASR detects User Speech OR DSP detects Music > Threshold:
+* **STOP** TTS/Video immediately  Go to State 2 (if Speech) or State 1 (if Music).
 
+
+* **Transition:** Speaking Finished (Normal)  Go to State 2 (Active Listening).
 ## 5. Model Candidates & Resource Requirements
 
 We will evaluate the following models to determine the optimal balance between quality and latency.
