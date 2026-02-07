@@ -43,13 +43,13 @@ graph LR
             SPLIT --> DSP
             SPLIT --> ASR
             DSP -- "Tempo, Pitch, Volume" --> ACC
-            ACC -- "Rolling 30s Buffer" --> ACC
+            ACC -- "Append to Full History" --> ACC
         end
 
         subgraph "The Brain (Logic)"
             ASR -- "Transcribed Text" --> INTENT{Wake Word or Follow-up?}
             INTENT -- "Yes" --> CTRL[Control Logic]
-            ACC -- "Fetch Snapshot" --> CTRL
+            ACC -- "Statistical Summary (Report Card)" --> CTRL
             MEM[Conversation History] <--> CTRL
             CTRL --> LLM[Feedback Generation]
         end
