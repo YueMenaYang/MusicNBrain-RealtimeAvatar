@@ -185,19 +185,14 @@ To accept the system for production, it must pass these specific benchmarks.
 ### 6.1 Performance Metrics
 
 * **Latency (End-to-End):** Time from Host finishing the wake word to Avatar first frame/sound.
-* *Target:* < 2.0 seconds.
+| Component | Old Budget | New Budget (Gemini Live) |
+| --- | --- | --- |
+| **Input Processing** | 400ms (Whisper) | **0ms** (Streamed) |
+| **Thinking** | 800ms (LLM) | **600ms** (Gemini Live) |
+| **Synthesis** | 300ms (TTS) | **0ms** (Included in Thinking) |
+| **Video Render** | 200ms | 200ms |
+| **Total Latency** | **~1.7 - 2.0s** | **~0.8 - 1.0s** |
 
-
-* **Turn-Taking Latency:** Time from User finishing a follow-up question to Avatar answering.
-* *Target:* < 1.5 seconds (Faster than initial wake-up).
-
-
-* **Real-Time Factor (RTF):** `Render Time / Audio Duration`.
-* *Target:* < 0.8 (Must render faster than real-time to prevent buffering).
-
-
-* **FPS Stability:** Percentage of time video stream stays above 24fps.
-* *Target:* > 99%.
 
 
 
