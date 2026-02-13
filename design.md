@@ -1,8 +1,8 @@
 # Design Doc: Real-Time Avatar Generation (Music Teacher)
 
 **Author:** Mena Yang
-**Status:** Draft v1
-**Last Updated:** February 6, 2026
+**Status:** Draft v2
+**Last Updated:** February 13, 2026
 
 ## 1. Executive Summary
 
@@ -34,32 +34,24 @@ graph LR
     subgraph "Avatar Generation Service"
         direction TB
         
-        subgraph "The Ear (Input Processing)"
+        subgraph "The Senses"
             SPLIT((Split))
             DSP[DSP Feature Extractor]
-            ASR[ASR / Speech-to-Text]
-            ACC[Feature Accumulator]
+            ACC[Performance Accumulator]
             
             SPLIT --> DSP
-            SPLIT --> ASR
-            DSP -- "Tempo, Pitch, Volume" --> ACC
-            ACC -- "Append to Full History" --> ACC
+            DSP -- "Pitch/Tempo Stats" --> ACC
         end
 
-        subgraph "The Brain (Logic)"
-            ASR -- "Transcribed Text" --> INTENT{Wake Word or Follow-up?}
-            INTENT -- "Yes" --> CTRL[Control Logic]
-            ACC -- "Statistical Summary (Report Card)" --> CTRL
-            MEM[Conversation History] <--> CTRL
-            CTRL --> LLM[Feedback Generation]
+        subgraph "The Brain (Gemini Live API)"
+            SPLIT -- "Audio Stream" --> GEM[Gemini 2.5 Flash]
+            ACC -- "Inject Stats (Text)" --> GEM
+            GEM -- "Audio Stream" --> LIP[LivePortrait]
         end
 
-        subgraph "The Face (Rendering)"
-            LLM -- "Text" --> TTS[TTS Engine]
-            TTS -- "Audio" --> LIP[LivePortrait Engine]
-            IDLE[Idle Loop Player] -- "Listening Frames" --> MUX
-            LIP -- "Talking Frames" --> MUX
-            TTS -- "Audio" --> MUX[A/V Muxer]
+        subgraph "The Face"
+            LIP -- "Video Frames" --> MUX[A/V Muxer]
+            GEM -- "Audio Stream" --> MUX
         end
 
         Z_IN --> SPLIT
