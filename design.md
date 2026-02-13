@@ -112,21 +112,14 @@ We use a 4-stage State Machine to handle natural back-and-forth conversation.
 We will evaluate the following models to determine the optimal balance between quality and latency.
 
 
-### 5.1 Audio Analysis
+### 5.1 The "Brain" (Audio-to-Audio)
 
-*Goal: Extract musical features (Pitch, Rhythm, Dynamics) without the heavy latency of a generative model.*
+Instead of a complex chain of models, we use a single Multimodal endpoint.
 
-We will use a **Hybrid DSP + AI Approach**. Pure AI models (like Jukebox) are too slow.
-
-| Component | Recommended Model / Library | Why? |
-| --- | --- | --- |
-| **Pitch / Intonation** | **CREPE (Torch-Crepe)** | SOTA (State-of-the-Art) for monophonic pitch tracking. Unlike standard math (FFT), it is robust to noise and "bad" microphones common on Zoom. We will use the `tiny` version for speed (<10ms inference). |
-| **Rhythm & Tempo** | **Madmom** or **Librosa** | **Madmom** is an RNN-based library specifically for beat tracking and downbeat detection. It is more accurate than Librosa for variable tempos (common in students). |
-| **Chord/Key Recognition** | **Essentia** (TensorFlow) | Highly optimized C++ library with Python bindings. It can detect the key (e.g., "C Major") instantly to check if the student is playing the right notes. |
-
-* **How it works in the Loop:**
-* Every 100ms chunk of audio is passed to **CREPE** (for pitch) and **Madmom** (for beat).
-* We don't transcribe "notes" (A4, C#5) because that's error-prone. Instead, we calculate **Deviation Metrics**: "Average Cents Deviation" (Out of tune) and "Beat Consistency" (Rushing/Dragging).
+| Component | Model | Implementation | Why? |
+| --- | --- | --- | --- |
+| **Core Logic & Voice** | **Gemini 2.5 Flash** | **Google Multimodal Live API** (WebSocket) | Handles Hearing, Thinking, and Speaking in one low-latency connection. Supports native "Barge-in" (interruption). |
+| **Music Analysis** | **Torch-Crepe + Madmom** | Local Python Process | **Crucial:** Gemini provides the conversation, but this DSP provides the *facts* (Pitch/Rhythm accuracy) which are injected into Gemini as context. |
 
 
 ### 5.2 Video Analysis
